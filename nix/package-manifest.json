@@ -5,7 +5,7 @@
   },
   "binary": {
     "name": "code-intel-ts",
-    "entrypoint": "main.ts",
+    "entrypoint": "src/cli.ts",
     "aliases": []
   },
   "meta": {

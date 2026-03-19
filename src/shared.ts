@@ -34,7 +34,13 @@ export function parseCommonArgs(argv: string[]) {
   const jsonIndex = args.indexOf("--json");
   const json = jsonIndex >= 0;
   if (json) args.splice(jsonIndex, 1);
-  return { args, json };
+  const repoRootIndex = args.indexOf("--repo-root");
+  let repoRoot: string | undefined;
+  if (repoRootIndex >= 0) {
+    repoRoot = args[repoRootIndex + 1];
+    args.splice(repoRootIndex, 2);
+  }
+  return { args, json, repoRoot: resolveRepoRoot(repoRoot) };
 }
 
 export function printOutput(data: Json, json: boolean) {
@@ -181,9 +187,18 @@ export type LspServerConfig = {
   name: string;
   command: string[];
   port: number;
+  defaultPort: number;
   languageId: string;
   initializeOptions?: Record<string, unknown>;
 };
+
+export function scopedPort(defaultPort: number, repoRoot: string, envValue?: string) {
+  const explicit = Number(envValue);
+  if (Number.isFinite(explicit) && explicit > 0) return explicit;
+  let hash = 0;
+  for (const char of repoRoot) hash = (hash * 31 + char.charCodeAt(0)) % 1000;
+  return defaultPort + hash;
+}
 
 type Pending = {
   resolve: (value: any) => void;
@@ -251,8 +266,7 @@ class LspTransport {
   }
 }
 
-export async function serveLsp(config: LspServerConfig) {
-  const repoRoot = resolveRepoRoot();
+export async function serveLsp(config: LspServerConfig, repoRoot = resolveRepoRoot()) {
   const transport = new LspTransport(config.command, repoRoot);
   await transport.request("initialize", {
     processId: process.pid,
@@ -336,9 +350,15 @@ async function handleServiceRequest(transport: LspTransport, config: LspServerCo
   }
 }
 
-export async function callLspService(config: LspServerConfig, payload: Record<string, unknown>, json = false) {
+export async function callLspService(
+  config: LspServerConfig,
+  payload: Record<string, unknown>,
+  json = false,
+  repoRoot = resolveRepoRoot(),
+) {
+  const port = scopedPort(config.defaultPort, repoRoot, String(config.port));
   try {
-    const response = await fetch(`http://127.0.0.1:${config.port}`, {
+    const response = await fetch(`http://127.0.0.1:${port}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(payload),
@@ -347,7 +367,11 @@ export async function callLspService(config: LspServerConfig, payload: Record<st
     if (!response.ok) fail(data.error ?? "lsp_service_error", data.message ?? `${config.name} service request failed`, json);
     return data;
   } catch (error: any) {
-    fail("lsp_service_unavailable", `${config.name} service is not running. Start flox services and retry. (${error?.message ?? error})`, json);
+    fail(
+      "lsp_service_unavailable",
+      `${config.name} service is not running for ${repoRoot}. Start it in this repo or pass --repo-root. (${error?.message ?? error})`,
+      json,
+    );
   }
 }
 

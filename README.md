@@ -5,7 +5,7 @@ Nix packaging for the local `code-intel-ts` Bun CLI.
 ## Package
 
 - Binary: `code-intel-ts`
-- Entrypoints: `ast.ts`, `lsp.ts`
+- Entrypoint: `src/cli.ts`
 - Current role: structural and semantic TypeScript code intelligence
 - Planned direction: Bun CLI frontend for operator and agent queries, with direct commands or daemon-backed execution
 
@@ -13,7 +13,7 @@ Nix packaging for the local `code-intel-ts` Bun CLI.
 
 - Packages the local Bun CLI with `bun2nix`
 - Exposes the canonical `code-intel-ts` binary
-- Preserves the `ast` and `lsp` subcommand surface for higher-level orchestration later
+- Keeps runtime code under `src/` and agent-facing guidance under `skills/`
 
 ## Files
 
@@ -27,4 +27,5 @@ Nix packaging for the local `code-intel-ts` Bun CLI.
 nix build
 ./result/bin/code-intel-ts ast outline src/index.ts
 ./result/bin/code-intel-ts lsp serve
+./result/bin/code-intel-ts lsp definition src/index.ts 12 4 --repo-root /path/to/worktree
 ```

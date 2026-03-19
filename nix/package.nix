@@ -2,6 +2,7 @@
 
 let
   manifest = builtins.fromJSON (builtins.readFile ./package-manifest.json);
+  sourceRoot = lib.cleanSource ../.;
   licenseMap = {
     "MIT" = lib.licenses.mit;
     "Apache-2.0" = lib.licenses.asl20;
@@ -28,7 +29,7 @@ EOF
     pname = manifest.package.repo;
     version = manifest.package.version;
     packageJson = ../package.json;
-    src = lib.cleanSource ../.;
+    src = sourceRoot;
     dontUseBunBuild = true;
     dontUseBunCheck = true;
     startScript = ''
@@ -57,10 +58,9 @@ symlinkJoin {
   postBuild = ''
     rm -rf "$out/bin"
     mkdir -p "$out/bin"
-    entrypoint="$(find "${basePackage}/share/${manifest.package.repo}" -path "*/${manifest.binary.entrypoint}" | head -n 1)"
     cat > "$out/bin/${manifest.binary.name}" <<EOF
 #!${lib.getExe bash}
-exec ${lib.getExe' bun "bun"} "$entrypoint" "\$@"
+exec ${lib.getExe' bun "bun"} "${sourceRoot}/${manifest.binary.entrypoint}" "\$@"
 EOF
     chmod +x "$out/bin/${manifest.binary.name}"
     ${aliasOutputLinks}

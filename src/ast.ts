@@ -2,10 +2,9 @@
 import { readFileSync } from "node:fs";
 import { basename } from "node:path";
 import process from "node:process";
-import { getAstGrepBinary, parseCommonArgs, printOutput, rel, requireFile, resolveRepoRoot, runCommand, fail } from "./code-intel-shared.ts";
+import { getAstGrepBinary, parseCommonArgs, printOutput, rel, requireFile, runCommand, fail } from "./shared.ts";
 
-const repoRoot = resolveRepoRoot();
-const { args, json } = parseCommonArgs(process.argv.slice(2));
+const { args, json, repoRoot } = parseCommonArgs(process.argv.slice(2));
 const [command, ...rest] = args;
 
 if (!command) fail("usage", "Usage: bun ast.ts <outline|symbols|imports|signature|scope|search> ...", json);
