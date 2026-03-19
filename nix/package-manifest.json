@@ -1,0 +1,16 @@
+{
+  "package": {
+    "repo": "code-intel-ts",
+    "version": "0.1.0"
+  },
+  "binary": {
+    "name": "code-intel-ts",
+    "entrypoint": "main.ts",
+    "aliases": []
+  },
+  "meta": {
+    "description": "TypeScript code intelligence CLI with AST and LSP subcommands",
+    "homepage": "https://github.com/RogerNavelsaker/code-intel-ts",
+    "licenseSpdx": "MIT"
+  }
+}
