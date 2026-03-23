@@ -10,7 +10,7 @@
   },
   "meta": {
     "description": "TypeScript code intelligence CLI with AST and LSP subcommands",
-    "homepage": "https://github.com/RogerNavelsaker/code-intel-ts",
+    "homepage": "https://github.com/RogerNavelsaker/nixpkg-code-intel-ts",
     "licenseSpdx": "MIT"
   }
 }

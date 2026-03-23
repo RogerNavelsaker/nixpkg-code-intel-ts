@@ -1,4 +1,4 @@
-# code-intel-ts
+# nixpkg-code-intel-ts
 
 TypeScript code intelligence CLI with AST and LSP subcommands, packaged as a local Bun tool.
 
